@@ -1,7 +1,19 @@
 var canvas;
 var gl;
+
 var squareVerticesBuffer;
 var squareVerticesColorBuffer;
+var boundaryVerticesBuffer;
+var boundaryVerticesColorBuffer;
+var squareRotation = 0.0;
+//var squareXOffset = 0.0;
+//var squareYOffset = 0.0;
+//var squareZOffset = 0.0;
+var lastSquareUpdateTime = 0;
+//var xIncValue = 0.2;
+//var yIncValue = -0.4;
+//var zIncValue = 0.3;
+
 var mvMatrix;
 var shaderProgram;
 var vertexPositionAttribute;
@@ -12,7 +24,6 @@ var perspectiveMatrix;
 // start
 //
 // Called when the canvas is created to get the ball rolling.
-// Figuratively, that is. There's nothing moving in this demo.
 //
 function start() {
   canvas = document.getElementById("glcanvas");
@@ -86,10 +97,10 @@ function initBuffers() {
   // coordinate is always 0 here.
 
   var vertices = [
-    2.0,  2.0,  0.0,
-    -2.0, 2.0,  0.0,
-    2.0,  -2.0, 0.0,
-    -2.0, -2.0, 0.0
+    1.5,  1.5,  0.0,
+    -1.5, 1.5,  0.0,
+    1.5,  -1.5, 0.0,
+    -1.5, -1.5, 0.0
   ];
 
   // Now pass the list of vertices into WebGL to build the shape. We
@@ -101,14 +112,55 @@ function initBuffers() {
   // Now set up the colors for the vertices
 
   var colors = [
-    1.0,  1.0,  1.0,  1.0,    // white
-    1.0,  0.0,  0.0,  1.0,    // red
-    0.0,  1.0,  0.0,  1.0,    // green
-    0.0,  0.0,  1.0,  1.0     // blue
+    1.0,  0.7,  0.7,  1.0,    // white
+    1.0,  0.7,  0.7,  1.0,    // red
+    1.0,  0.7,  0.7,  1.0,    // green
+    1.0,  0.7,  0.7,  1.0     // blue
   ];
 
   squareVerticesColorBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesColorBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+
+
+
+
+// Create a buffer for the square's vertices.
+
+  boundaryVerticesBuffer = gl.createBuffer();
+
+  // Select the squareVerticesBuffer as the one to apply vertex
+  // operations to from here out.
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, boundaryVerticesBuffer);
+
+  // Now create an array of vertices for the square. Note that the Z
+  // coordinate is always 0 here.
+
+  var vertices = [
+    0.1,  1.7,  0.0,
+    -0.1, 1.7,  0.0,
+    0.1,  -1.7, 0.0,
+    -0.1, -1.7, 0.0
+  ];
+
+  // Now pass the list of vertices into WebGL to build the shape. We
+  // do this by creating a Float32Array from the JavaScript array,
+  // then use it to fill the current vertex buffer.
+
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+  // Now set up the colors for the vertices
+
+  var colors = [
+    0.5,  0.15,  0.15,  1.0,    // white
+    0.5,  0.15,  0.15,  1.0,    // red
+    0.5,  0.15,  0.15,  1.0,    // green
+    0.5,  0.15,  0.15,  1.0     // blue
+  ];
+
+  boundaryVerticesColorBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, boundaryVerticesColorBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
 }
 
@@ -127,7 +179,7 @@ function drawScene() {
   // ratio of 640:480, and we only want to see objects between 0.1 units
   // and 100 units away from the camera.
 
-  perspectiveMatrix = makePerspective(45, 640.0/480.0, 0.1, 100.0);
+  perspectiveMatrix = makePerspective(45, 853.0/640.0, 0.1, 100.0);
 
   // Set the drawing position to the "identity" point, which is
   // the center of the scene.
@@ -138,6 +190,12 @@ function drawScene() {
   // drawing the square.
 
   mvTranslate([-0.0, 0.0, -6.0]);
+
+  // Save the current matrix, then rotate before we draw.
+
+  mvPushMatrix();
+//  mvRotate(squareRotation, [0, 0, 1]);
+//  mvTranslate([squareXOffset, squareYOffset, squareZOffset]);
 
   // Draw the square by binding the array buffer to the square's vertices
   // array, setting attributes, and pushing it to GL.
@@ -154,6 +212,165 @@ function drawScene() {
 
   setMatrixUniforms();
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+  // Restore the original matrix
+
+  mvPopMatrix();
+
+
+loadIdentity();
+
+  // Now move the drawing position a bit to where we want to start
+  // drawing the square.
+
+  mvTranslate([-0.0, 0.0, -6.0]);
+
+  // Save the current matrix, then rotate before we draw.
+
+  mvPushMatrix();
+//  mvRotate(squareRotation, [0, 0, 1]);
+  mvTranslate([-1.6, 0, 0]);
+
+  // Draw the square by binding the array buffer to the square's vertices
+  // array, setting attributes, and pushing it to GL.
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, boundaryVerticesBuffer);
+  gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+  // Set the colors attribute for the vertices.
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, boundaryVerticesColorBuffer);
+  gl.vertexAttribPointer(vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
+
+  // Draw the square.
+
+  setMatrixUniforms();
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+  // Restore the original matrix
+
+  mvPopMatrix();
+
+loadIdentity();
+
+  // Now move the drawing position a bit to where we want to start
+  // drawing the square.
+
+  mvTranslate([-0.0, 0.0, -6.0]);
+
+  // Save the current matrix, then rotate before we draw.
+
+  mvPushMatrix();
+//  mvRotate(squareRotation, [0, 0, 1]);
+  mvTranslate([1.6, 0, 0]);
+
+  // Draw the square by binding the array buffer to the square's vertices
+  // array, setting attributes, and pushing it to GL.
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, boundaryVerticesBuffer);
+  gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+  // Set the colors attribute for the vertices.
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, boundaryVerticesColorBuffer);
+  gl.vertexAttribPointer(vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
+
+  // Draw the square.
+
+  setMatrixUniforms();
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+  // Restore the original matrix
+
+  mvPopMatrix();
+
+  // Update the rotation for the next draw, if it's time to do so.
+loadIdentity();
+
+  // Now move the drawing position a bit to where we want to start
+  // drawing the square.
+
+  mvTranslate([-0.0, 0.0, -6.0]);
+
+  // Save the current matrix, then rotate before we draw.
+
+  mvPushMatrix();
+  mvRotate((90.0), [0, 0, 1]);
+  mvTranslate([-1.6, 0, 0]);
+
+  // Draw the square by binding the array buffer to the square's vertices
+  // array, setting attributes, and pushing it to GL.
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, boundaryVerticesBuffer);
+  gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+  // Set the colors attribute for the vertices.
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, boundaryVerticesColorBuffer);
+  gl.vertexAttribPointer(vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
+
+  // Draw the square.
+
+  setMatrixUniforms();
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+  // Restore the original matrix
+
+  mvPopMatrix();
+
+loadIdentity();
+
+  // Now move the drawing position a bit to where we want to start
+  // drawing the square.
+
+  mvTranslate([-0.0, 0.0, -6.0]);
+
+  // Save the current matrix, then rotate before we draw.
+
+  mvPushMatrix();
+  mvRotate((90), [0, 0, 1]);
+  mvTranslate([1.6, 0, 0]);
+
+  // Draw the square by binding the array buffer to the square's vertices
+  // array, setting attributes, and pushing it to GL.
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, boundaryVerticesBuffer);
+  gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+  // Set the colors attribute for the vertices.
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, boundaryVerticesColorBuffer);
+  gl.vertexAttribPointer(vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
+
+  // Draw the square.
+
+  setMatrixUniforms();
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+  // Restore the original matrix
+
+  mvPopMatrix();
+
+  // Update the rotation for the next draw, if it's time to do so.
+
+  // Update the rotation for the next draw, if it's time to do so.
+  var currentTime = (new Date).getTime();
+  if (lastSquareUpdateTime) {
+    var delta = currentTime - lastSquareUpdateTime;
+
+  //  squareRotation += (30 * delta) / 1000.0;
+ //   squareXOffset += xIncValue * ((30 * delta) / 1000.0);
+   // squareYOffset += yIncValue * ((30 * delta) / 1000.0);
+   // squareZOffset += zIncValue * ((30 * delta) / 1000.0);
+
+   // if (Math.abs(squareYOffset) > 2.5) {
+     // xIncValue = -xIncValue;
+     // yIncValue = -yIncValue;
+     // zIncValue = -zIncValue;
+   // }
+  }
+
+  lastSquareUpdateTime = currentTime;
 }
 
 //
@@ -269,4 +486,31 @@ function setMatrixUniforms() {
 
   var mvUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
   gl.uniformMatrix4fv(mvUniform, false, new Float32Array(mvMatrix.flatten()));
+}
+
+var mvMatrixStack = [];
+
+function mvPushMatrix(m) {
+  if (m) {
+    mvMatrixStack.push(m.dup());
+    mvMatrix = m.dup();
+  } else {
+    mvMatrixStack.push(mvMatrix.dup());
+  }
+}
+
+function mvPopMatrix() {
+  if (!mvMatrixStack.length) {
+    throw("Can't pop from an empty matrix stack.");
+  }
+
+  mvMatrix = mvMatrixStack.pop();
+  return mvMatrix;
+}
+
+function mvRotate(angle, v) {
+  var inRadians = angle * Math.PI / 180.0;
+
+  var m = Matrix.Rotation(inRadians, $V([v[0], v[1], v[2]])).ensure4x4();
+  multMatrix(m);
 }
