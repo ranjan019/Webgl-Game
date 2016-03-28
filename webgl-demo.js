@@ -5,6 +5,8 @@ var squareVerticesBuffer;
 var squareVerticesColorBuffer;
 var boundaryVerticesBuffer;
 var boundaryVerticesColorBuffer;
+var lineVerticesBuffer;
+var lineVerticesColorBuffer;
 var squareRotation = 0.0;
 //var squareXOffset = 0.0;
 //var squareYOffset = 0.0;
@@ -162,6 +164,47 @@ function initBuffers() {
   boundaryVerticesColorBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, boundaryVerticesColorBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+
+
+
+
+// Create a buffer for the square's vertices.
+
+  lineVerticesBuffer = gl.createBuffer();
+
+  // Select the squareVerticesBuffer as the one to apply vertex
+  // operations to from here out.
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, lineVerticesBuffer);
+
+  // Now create an array of vertices for the square. Note that the Z
+  // coordinate is always 0 here.
+
+  var vertices = [
+    0.01,  1.21,  0.0,
+    -0.01, 1.21,  0.0,
+    0.01,  -1.21, 0.0,
+    -0.01, -1.21, 0.0
+  ];
+
+  // Now pass the list of vertices into WebGL to build the shape. We
+  // do this by creating a Float32Array from the JavaScript array,
+  // then use it to fill the current vertex buffer.
+
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+  // Now set up the colors for the vertices
+
+  var colors = [
+    0,  0,  0,  1.0,    // white
+    0,  0,  0,  1.0,    // red
+    0,  0,  0,  1.0,    // green
+    0,  0,  0,  1.0     // blue
+  ];
+
+  lineVerticesColorBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, lineVerticesColorBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
 }
 
 //
@@ -185,7 +228,7 @@ function drawScene() {
   // the center of the scene.
 
   loadIdentity();
-
+  
   // Now move the drawing position a bit to where we want to start
   // drawing the square.
 
@@ -216,7 +259,8 @@ function drawScene() {
   // Restore the original matrix
 
   mvPopMatrix();
-
+//-------------------------------------------------------------------------------------------------------------------
+//boundaries start from here
 
 loadIdentity();
 
@@ -350,7 +394,141 @@ loadIdentity();
   // Restore the original matrix
 
   mvPopMatrix();
+//------------------------------------------------------------------------------------------------------------------------
+//lines start from here
 
+loadIdentity();
+
+  // Now move the drawing position a bit to where we want to start
+  // drawing the square.
+
+  mvTranslate([-0.0, 0.0, -6.0]);
+
+  // Save the current matrix, then rotate before we draw.
+
+  mvPushMatrix();
+//  mvRotate(squareRotation, [0, 0, 1]);
+  mvTranslate([-1.2, 0, 0]);
+
+  // Draw the square by binding the array buffer to the square's vertices
+  // array, setting attributes, and pushing it to GL.
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, lineVerticesBuffer);
+  gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+  // Set the colors attribute for the vertices.
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, lineVerticesColorBuffer);
+  gl.vertexAttribPointer(vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
+
+  // Draw the square.
+
+  setMatrixUniforms();
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+  // Restore the original matrix
+
+  mvPopMatrix();
+
+loadIdentity();
+
+  // Now move the drawing position a bit to where we want to start
+  // drawing the square.
+
+  mvTranslate([-0.0, 0.0, -6.0]);
+
+  // Save the current matrix, then rotate before we draw.
+
+  mvPushMatrix();
+//  mvRotate(squareRotation, [0, 0, 1]);
+  mvTranslate([1.2, 0, 0]);
+
+  // Draw the square by binding the array buffer to the square's vertices
+  // array, setting attributes, and pushing it to GL.
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, lineVerticesBuffer);
+  gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+  // Set the colors attribute for the vertices.
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, lineVerticesColorBuffer);
+  gl.vertexAttribPointer(vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
+
+  // Draw the square.
+
+  setMatrixUniforms();
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+  // Restore the original matrix
+
+  mvPopMatrix();
+
+  // Update the rotation for the next draw, if it's time to do so.
+loadIdentity();
+
+  // Now move the drawing position a bit to where we want to start
+  // drawing the square.
+
+  mvTranslate([-0.0, 0.0, -6.0]);
+
+  // Save the current matrix, then rotate before we draw.
+
+  mvPushMatrix();
+  mvRotate((90.0), [0, 0, 1]);
+  mvTranslate([-1.2, 0, 0]);
+
+  // Draw the square by binding the array buffer to the square's vertices
+  // array, setting attributes, and pushing it to GL.
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, lineVerticesBuffer);
+  gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+  // Set the colors attribute for the vertices.
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, lineVerticesColorBuffer);
+  gl.vertexAttribPointer(vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
+
+  // Draw the square.
+
+  setMatrixUniforms();
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+  // Restore the original matrix
+
+  mvPopMatrix();
+
+loadIdentity();
+
+  // Now move the drawing position a bit to where we want to start
+  // drawing the square.
+
+  mvTranslate([-0.0, 0.0, -6.0]);
+
+  // Save the current matrix, then rotate before we draw.
+
+  mvPushMatrix();
+  mvRotate((90), [0, 0, 1]);
+  mvTranslate([1.2, 0, 0]);
+
+  // Draw the square by binding the array buffer to the square's vertices
+  // array, setting attributes, and pushing it to GL.
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, lineVerticesBuffer);
+  gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+  // Set the colors attribute for the vertices.
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, lineVerticesColorBuffer);
+  gl.vertexAttribPointer(vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
+
+  // Draw the square.
+
+  setMatrixUniforms();
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+  // Restore the original matrix
+
+  mvPopMatrix();
   // Update the rotation for the next draw, if it's time to do so.
 
   // Update the rotation for the next draw, if it's time to do so.
