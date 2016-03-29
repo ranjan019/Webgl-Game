@@ -18,6 +18,7 @@ var blackholeVerticesColorBuffer;
 var strikerVerticesBuffer;
 var strikerVerticesColorBuffer;
 var squareRotation = 0.0;
+var strikerRotation = 0.0;
 //var squareXOffset = 0.0;
 //var squareYOffset = 0.0;
 //var squareZOffset = 0.0;
@@ -63,8 +64,18 @@ function start() {
     // Set up to draw the scene periodically.
 
     setInterval(drawScene, 15);
+
   }
 }
+
+
+
+
+
+
+
+
+
 
 //
 // initWebGL
@@ -461,7 +472,7 @@ scene.add( circle );*/
   // Save the current matrix, then rotate before we draw.
 
   mvPushMatrix();
-//  mvRotate(squareRotation, [0, 0, 1]);
+  mvRotate(squareRotation, [0, 0, 1]);
 //  mvTranslate([squareXOffset, squareYOffset, squareZOffset]);
 
   // Draw the square by binding the array buffer to the square's vertices
@@ -1224,7 +1235,7 @@ loadIdentity();
   mvPushMatrix();
 
   mvTranslate([-0.0, -1.13, 0]);
-
+  mvRotate(strikerRotation, [0, 0, 1]);
   // Draw the square by binding the array buffer to the square's vertices
   // array, setting attributes, and pushing it to GL.
 
@@ -1250,7 +1261,7 @@ loadIdentity();
   if (lastSquareUpdateTime) {
     var delta = currentTime - lastSquareUpdateTime;
 
-  //  squareRotation += (30 * delta) / 1000.0;
+    strikerRotation += (5000 * delta) ;
  //   squareXOffset += xIncValue * ((30 * delta) / 1000.0);
    // squareYOffset += yIncValue * ((30 * delta) / 1000.0);
    // squareZOffset += zIncValue * ((30 * delta) / 1000.0);
